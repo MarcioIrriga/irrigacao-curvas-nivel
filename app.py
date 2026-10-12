@@ -44,7 +44,7 @@ with st.sidebar:
     st.markdown('## 🌱 GeoIrriga')
     st.caption('Plataforma de apoio ao planejamento da irrigação')
     st.markdown('**Navegação**')
-    st.page_link('app.py',label='🏠 Gerar projeto')
+    st.page_link('app.py', label='🏠 Gerar projeto')
     st.markdown('---')
     st.markdown('**Desenvolvedor**')
     st.markdown('**Dr. Márcio Alves Carneiro**')
