@@ -1,4 +1,4 @@
-import io, math, zipfile, json, xml.etree.ElementTree as ET
+import io, math, zipfile, json, base64, xml.etree.ElementTree as ET
 from pathlib import Path
 import numpy as np
 import streamlit as st
@@ -18,20 +18,25 @@ import matplotlib.pyplot as plt
 st.set_page_config(page_title="GeoIrriga | Irrigação e Geotecnologias",page_icon="🌱",layout="wide",initial_sidebar_state="expanded")
 ROOT=Path(__file__).parent
 st.markdown("""<style>
-.stApp {background:#101f1a;color:#e9f3ec;} .block-container {padding-top:1rem;max-width:1480px;}
-[data-testid="stSidebar"] {background:#172e24;}
-h1,h2,h3 {color:#e9f3ec;} h1 {font-weight:800;}
-div.stButton > button[kind="primary"],div.stDownloadButton > button[kind="primary"] {background:#177047;color:#fff;border-radius:9px;border:0;min-height:3rem;font-weight:700;}
-div.stButton > button[kind="primary"]:hover {background:#0e5235;color:#fff;}
-.hero {background:linear-gradient(95deg,rgba(10,49,32,.98) 0%,rgba(14,69,43,.92) 55%,rgba(14,69,43,.48) 100%);border-radius:16px;padding:30px 34px;color:white;margin-bottom:20px;}
-.hero h1 {color:#fff;margin:0;font-size:2.8rem;} .hero p {color:#e1f0e5;font-size:1.05rem;margin:7px 0;}
-.chip {display:inline-block;border:1px solid #a5d0ad;border-radius:25px;color:#f2fff4;padding:5px 12px;margin:10px 7px 0 0;font-size:.85rem;}
-.card {background:#1b3529;color:#e9f3ec;border:1px solid #365b47;border-radius:13px;padding:20px;margin-bottom:12px;box-shadow:0 3px 12px #173e2d0a;}
-.card h3 {margin:0 0 9px;color:#f1fff4;} .muted {color:#c1d6c6;} .foot {padding:16px;border-radius:10px;background:#143b2b;color:#fff;margin-top:20px;}
-[data-testid="stSidebar"] * {color:#e8f2e9;}
-[data-testid="stFileUploader"] {border-radius:12px;}
-[data-testid="stWidgetLabel"] p {color:#e8f2e9;}
-[data-testid="stCaptionContainer"] p {color:#b9cfc0;}
+.stApp {background:#061c19;color:#f0f7f2}
+.block-container {padding-top:1.2rem;max-width:1500px}
+[data-testid="stSidebar"] {background:#082a25}
+[data-testid="stSidebar"] * {color:#eef8f1}
+h1,h2,h3,p,label {color:#f0f7f2}
+h1 {font-weight:800}
+[data-testid="stFileUploader"],[data-testid="stForm"],[data-testid="stExpander"] {background:#0b302a;border-radius:12px}
+[data-testid="stMetric"] {background:#103a32;padding:12px;border-radius:12px}
+div.stButton > button[kind="primary"],div.stDownloadButton > button[kind="primary"] {background:#157348;color:white;border-radius:9px;border:1px solid #49b67a;min-height:3rem;font-weight:700}
+div.stButton > button[kind="primary"]:hover {background:#1d8b5a;color:white}
+.hero {background:linear-gradient(90deg,rgba(3,22,20,.94),rgba(5,29,24,.80) 53%,rgba(5,29,24,.52));border:1px solid #285e4a;border-radius:16px;padding:36px 36px 30px;color:white;margin-bottom:20px;min-height:250px;background-size:cover;background-position:center}
+.hero h1 {color:#fff;margin:0;font-size:2.7rem}
+.hero p {color:#eef8f2;font-size:1.02rem;margin:8px 0}
+.chip {display:inline-block;border:1px solid #83c8a0;border-radius:25px;color:#fff;padding:5px 12px;margin:10px 7px 0 0;font-size:.84rem}
+.card {background:#0c302a;border:1px solid #235b48;border-radius:13px;padding:17px;margin-bottom:12px;color:#eff8f2}
+.card h3 {color:#fff;margin:0 0 9px}
+.muted {color:#b5cfc1}
+.foot {padding:16px;border-radius:10px;background:#0b3429;color:#fff;margin-top:20px}
+[data-testid="stAlert"] {border-radius:10px}
 </style>""",unsafe_allow_html=True)
 
 with st.sidebar:
@@ -231,16 +236,21 @@ def run(kml_bytes, filename, api_key, resolution, max_image):
 
 
 def hero():
-    st.markdown("""<div class="hero"><h1>🌱 GeoIrriga</h1><p><b>Do relevo ao pré-projeto de irrigação</b></p><p>Imagem de satélite, curvas de nível, cotas e arquivo DXF para AutoCAD.</p><span class="chip">KML / KMZ</span><span class="chip">Satélite</span><span class="chip">Curvas de 1 m</span><span class="chip">DXF</span></div>""",unsafe_allow_html=True)
+    banner=ROOT/'assets'/'banner_campo.jpg'
+    bg=''
+    if banner.exists():
+        encoded=base64.b64encode(banner.read_bytes()).decode('ascii')
+        bg=f"background-image:linear-gradient(90deg,rgba(3,22,20,.92),rgba(5,29,24,.72) 55%,rgba(5,29,24,.52)),url('data:image/jpeg;base64,{encoded}');"
+    st.markdown(f"""<div class="hero" style="{bg}"><h1>🌱 GeoIrriga</h1>
+    <p><b>Do relevo ao pré-projeto de irrigação</b></p>
+    <p>Imagem de satélite, curvas de nível, cotas e arquivo DXF para AutoCAD.</p>
+    <span class="chip">KML / KMZ</span><span class="chip">Satélite</span>
+    <span class="chip">Curvas de 1 m</span><span class="chip">DXF</span></div>""",unsafe_allow_html=True)
 
 def apresentacao():
     a,b=st.columns([1,3],gap='large',vertical_alignment='center')
     with a:
-        foto = ROOT/'assets'/'marcio_carneiro.png'
-        if foto.exists():
-            st.image(str(foto), width=160)
-        else:
-            st.caption('Fotografia do desenvolvedor em preparação.')
+        st.image(str(ROOT/'assets'/'marcio_carneiro.png'),width=150)
     with b:
         st.subheader('Dr. Márcio Alves Carneiro')
         st.markdown('**Engenheiro Agrônomo • Professor EBTT • Pesquisador**')
@@ -271,7 +281,7 @@ def biblioteca():
     with st.expander('Como publicar novos materiais (administrador)'):
         st.markdown('1. Acesse o repositório no GitHub com sua conta de administrador.\n2. Abra a pasta `biblioteca` e escolha a categoria.\n3. Use **Add file → Upload files** e **Commit changes**.\n4. Após a atualização do Streamlit, o material aparecerá automaticamente nesta aba.\n\n**Não publique materiais protegidos por direitos autorais sem autorização.**')
 
-def formulario_dxf():
+def gerar_projeto_ui():
     st.header('🗺️ Gerar projeto topográfico')
     st.write('Envie o perímetro da propriedade e configure a resolução da imagem incorporada ao arquivo DXF.')
     col_form,col_info=st.columns([1.2,1],gap='large')
@@ -305,29 +315,22 @@ def formulario_dxf():
         except Exception as exc:
             st.error(f'Não foi possível gerar o projeto: {exc}')
 
+
 if pagina=='🏠 Início':
     hero()
-    # O formulário aparece imediatamente após o cabeçalho, antes do conteúdo institucional.
-    formulario_dxf()
-    st.divider()
-    banner = ROOT/'assets'/'banner_campo.jpg'
-    if banner.exists():
-        st.image(str(banner),caption='Agricultura irrigada — imagem ilustrativa',use_container_width=True)
-    else:
-        st.caption('Banner agrícola em preparação.')
+    gerar_projeto_ui()
     st.subheader('Tecnologia aplicada ao planejamento da irrigação')
     st.write('O GeoIrriga facilita a preparação de bases topográficas preliminares a partir do perímetro KML/KMZ da propriedade. O sistema integra imagens de satélite, informações altimétricas e exportação DXF, auxiliando na avaliação do relevo e no estudo inicial da distribuição de tubulações, setores e componentes de irrigação.')
     a,b,c=st.columns(3)
-    with a: st.markdown('<div class="card"><h3>🗺️ Gerar projeto</h3>Envie o KML/KMZ e gere curvas, cotas, perímetro e DXF.</div>',unsafe_allow_html=True)
-    with b: st.markdown('<div class="card"><h3>📚 Biblioteca técnica</h3>Consulte apostilas, artigos, planilhas e modelos de projetos.</div>',unsafe_allow_html=True)
-    with c: st.markdown('<div class="card"><h3>📏 Base preliminar</h3>Reconhecimento do relevo para estudos iniciais de irrigação.</div>',unsafe_allow_html=True)
-    st.divider()
+    with a: st.markdown('<div class="card"><h3>🗺️ Base geoespacial</h3>Perímetro, curvas de nível e imagem de satélite.</div>',unsafe_allow_html=True)
+    with b: st.markdown('<div class="card"><h3>📚 Biblioteca técnica</h3>Apostilas, artigos, planilhas e modelos de projetos.</div>',unsafe_allow_html=True)
+    with c: st.markdown('<div class="card"><h3>📏 Planejamento preliminar</h3>Reconhecimento do relevo para estudos iniciais de irrigação.</div>',unsafe_allow_html=True)
     st.subheader('Sobre o desenvolvedor')
     apresentacao()
 
 elif pagina=='🗺️ Gerar projeto DXF':
     hero()
-    formulario_dxf()
+    gerar_projeto_ui()
 
 elif pagina=='📚 Biblioteca técnica':
     biblioteca()
