@@ -15,7 +15,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-st.set_page_config(page_title="GeoIrriga | Irrigação e Geotecnologias",page_icon="🌱",layout="wide",initial_sidebar_state="expanded")
+st.set_page_config(page_title="Irriga+ | Irrigação e Geotecnologias",page_icon="💧",layout="wide",initial_sidebar_state="expanded")
 ROOT=Path(__file__).parent
 st.markdown("""<style>
 .stApp {background:#061c19;color:#f0f7f2}
@@ -29,7 +29,7 @@ h1 {font-weight:800}
 div.stButton > button[kind="primary"],div.stDownloadButton > button[kind="primary"] {background:#157348;color:white;border-radius:9px;border:1px solid #49b67a;min-height:3rem;font-weight:700}
 div.stButton > button[kind="primary"]:hover {background:#1d8b5a;color:white}
 .hero {background:linear-gradient(90deg,rgba(3,22,20,.94),rgba(5,29,24,.80) 53%,rgba(5,29,24,.52));border:1px solid #285e4a;border-radius:16px;padding:36px 36px 30px;color:white;margin-bottom:20px;min-height:250px;background-size:cover;background-position:center}
-.hero h1 {color:#fff;margin:0;font-size:2.7rem}
+.hero h1 {color:#fff;margin:0;font-size:2.7rem;display:flex;align-items:center;gap:8px}.water-logo{display:inline-flex;align-items:center}.plus-mark{color:#a8e78f;margin-left:-7px}
 .hero p {color:#eef8f2;font-size:1.02rem;margin:8px 0}
 .chip {display:inline-block;border:1px solid #83c8a0;border-radius:25px;color:#fff;padding:5px 12px;margin:10px 7px 0 0;font-size:.84rem}
 .card {background:#0c302a;border:1px solid #235b48;border-radius:13px;padding:17px;margin-bottom:12px;color:#eff8f2}
@@ -40,9 +40,9 @@ div.stButton > button[kind="primary"]:hover {background:#1d8b5a;color:white}
 </style>""",unsafe_allow_html=True)
 
 with st.sidebar:
-    st.title('🌱 GeoIrriga')
-    st.caption('Geotecnologias para o planejamento da irrigação')
-    pagina=st.radio('Navegação',['🏠 Início','🗺️ Gerar projeto DXF','📚 Biblioteca técnica','👨‍🏫 Desenvolvedor','ℹ️ Orientações'],label_visibility='collapsed')
+    st.title('💧 Irriga+')
+    st.caption('Engenharia e projetos de irrigação')
+    pagina=st.radio('Navegação',['🏠 Início','🗺️ Gerar projeto DXF','📚 Biblioteca técnica','👨‍🏫 Idealizador','ℹ️ Orientações'],label_visibility='collapsed')
     st.divider()
     st.caption('Idealização: Dr. Márcio Alves Carneiro')
     st.caption('Uso preliminar: valide a topografia em campo.')
@@ -241,8 +241,8 @@ def hero():
     if banner.exists():
         encoded=base64.b64encode(banner.read_bytes()).decode('ascii')
         bg=f"background-image:linear-gradient(90deg,rgba(3,22,20,.92),rgba(5,29,24,.72) 55%,rgba(5,29,24,.52)),url('data:image/jpeg;base64,{encoded}');"
-    st.markdown(f"""<div class="hero" style="{bg}"><h1>🌱 GeoIrriga</h1>
-    <p><b>Do relevo ao pré-projeto de irrigação</b></p>
+    st.markdown(f"""<div class="hero" style="{bg}"><h1><span class="water-logo" aria-label="Gotas de água"><svg width="66" height="55" viewBox="0 0 66 55" xmlns="http://www.w3.org/2000/svg" role="img"><path d="M25 2C18 15 9 24 9 34a16 16 0 0 0 32 0C41 24 32 15 25 2Z" fill="#86d9ec"/><path d="M48 15c-4 8-9 13-9 19a10 10 0 0 0 20 0c0-6-6-13-11-19Z" fill="#b3e9f2"/><path d="M10 21C6 28 3 32 3 37a8 8 0 0 0 8 8" fill="none" stroke="#64b8d6" stroke-width="3" stroke-linecap="round"/></svg></span> Irriga<span class="plus-mark">+</span></h1>
+    <p><b>Do levantamento da área ao projeto de irrigação</b></p>
     <p>Imagem de satélite, curvas de nível, cotas e arquivo DXF para AutoCAD.</p>
     <span class="chip">KML / KMZ</span><span class="chip">Satélite</span>
     <span class="chip">Curvas de 1 m</span><span class="chip">DXF</span></div>""",unsafe_allow_html=True)
@@ -255,10 +255,10 @@ def apresentacao():
         st.subheader('Dr. Márcio Alves Carneiro')
         st.markdown('**Engenheiro Agrônomo • Professor EBTT • Pesquisador**')
         st.write('Doutor em Engenharia de Sistemas Agrícolas pela ESALQ/USP, mestre em Engenharia de Sistemas Agrícolas pela UNIVASF e professor do Instituto Federal do Maranhão (IFMA), Campus São Raimundo das Mangabeiras.')
-        st.write('Idealizador do GeoIrriga, ferramenta voltada ao apoio ao planejamento preliminar de sistemas de irrigação com geotecnologias.')
+        st.write('Idealizador do Irriga+, plataforma voltada ao apoio ao planejamento preliminar de sistemas de irrigação com geotecnologias.')
 
 def biblioteca():
-    st.header('📚 Biblioteca Técnica GeoIrriga')
+    st.header('📚 Biblioteca Técnica Irriga+')
     st.write('Apostilas, artigos, planilhas, apresentações e modelos técnicos selecionados para apoiar estudos e pré-projetos de irrigação.')
     st.info('Publicação restrita ao administrador do repositório GitHub. Visitantes podem consultar e baixar os materiais, mas não alterá-los.')
     categorias=['Irrigação e drenagem','Topografia e geoprocessamento','Hidrologia e recursos hídricos','Modelos e planilhas']
@@ -311,7 +311,7 @@ def gerar_projeto_ui():
             b.metric('Perímetro',f"{report['perimetro_m']:.2f} m")
             c.metric('Desnível',f"{report['desnivel_m']:.2f} m")
             d.metric('Curvas (segmentos)',str(report['curvas']))
-            st.download_button('⬇️ Baixar DXF + imagem + relatório (ZIP)',data=archive,file_name='GEOIRRIGA_PROJETO_DXF.zip',mime='application/zip',type='primary',use_container_width=True)
+            st.download_button('⬇️ Baixar DXF + imagem + relatório (ZIP)',data=archive,file_name='IRRIGA_MAIS_PROJETO_DXF.zip',mime='application/zip',type='primary',use_container_width=True)
         except Exception as exc:
             st.error(f'Não foi possível gerar o projeto: {exc}')
 
@@ -320,12 +320,12 @@ if pagina=='🏠 Início':
     hero()
     gerar_projeto_ui()
     st.subheader('Tecnologia aplicada ao planejamento da irrigação')
-    st.write('O GeoIrriga facilita a preparação de bases topográficas preliminares a partir do perímetro KML/KMZ da propriedade. O sistema integra imagens de satélite, informações altimétricas e exportação DXF, auxiliando na avaliação do relevo e no estudo inicial da distribuição de tubulações, setores e componentes de irrigação.')
+    st.write('O Irriga+ facilita a preparação de bases topográficas preliminares a partir do perímetro KML/KMZ da propriedade. O sistema integra imagens de satélite, informações altimétricas e exportação DXF, auxiliando na avaliação do relevo e no estudo inicial da distribuição de tubulações, setores e componentes de irrigação.')
     a,b,c=st.columns(3)
     with a: st.markdown('<div class="card"><h3>🗺️ Base geoespacial</h3>Perímetro, curvas de nível e imagem de satélite.</div>',unsafe_allow_html=True)
     with b: st.markdown('<div class="card"><h3>📚 Biblioteca técnica</h3>Apostilas, artigos, planilhas e modelos de projetos.</div>',unsafe_allow_html=True)
     with c: st.markdown('<div class="card"><h3>📏 Planejamento preliminar</h3>Reconhecimento do relevo para estudos iniciais de irrigação.</div>',unsafe_allow_html=True)
-    st.subheader('Sobre o desenvolvedor')
+    st.subheader('Sobre o idealizador')
     apresentacao()
 
 elif pagina=='🗺️ Gerar projeto DXF':
@@ -335,10 +335,10 @@ elif pagina=='🗺️ Gerar projeto DXF':
 elif pagina=='📚 Biblioteca técnica':
     biblioteca()
 
-elif pagina=='👨‍🏫 Desenvolvedor':
-    st.header('Sobre o desenvolvedor')
+elif pagina=='👨‍🏫 Idealizador':
+    st.header('Sobre o idealizador')
     apresentacao()
-    st.subheader('Sobre o GeoIrriga')
+    st.subheader('Sobre o Irriga+')
     st.write('Plataforma de apoio ao planejamento preliminar da irrigação, com integração de dados geoespaciais e geração de bases em DXF para utilização em softwares CAD.')
 
 elif pagina=='ℹ️ Orientações':
@@ -347,4 +347,4 @@ elif pagina=='ℹ️ Orientações':
     st.warning('Os dados altimétricos do Copernicus GLO-30 têm resolução nominal aproximada de 30 m. Curvas interpoladas de 1 m não possuem precisão equivalente a levantamento topográfico de 1 m. Valide em campo antes de projetos executivos.')
     st.caption('A disponibilidade e as condições de uso das imagens de satélite dependem do provedor.')
 
-st.markdown('<div class="foot"><b>GeoIrriga</b> — Geotecnologias aplicadas ao planejamento da irrigação<br>Idealização: Dr. Márcio Alves Carneiro • © 2026</div>',unsafe_allow_html=True)
+st.markdown('<div class="foot"><b>Irriga+</b> — Tecnologia e engenharia para projetos de irrigação<br>Idealização: Dr. Márcio Alves Carneiro • © 2026</div>',unsafe_allow_html=True)
