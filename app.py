@@ -15,10 +15,43 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-st.set_page_config(page_title='Curvas de Nível para Irrigação', page_icon='🌱', layout='wide')
-st.title('🌱 Projeto de irrigação — Satélite + Curvas de nível + DXF')
-st.write('Envie o polígono da propriedade em KML/KMZ e gere um DXF com imagem de satélite incorporada, perímetro, curvas de nível e cotas.')
-st.info('As curvas de 1 m são interpoladas de um modelo digital de elevação de aproximadamente 30 m. Não substituem levantamento topográfico para dimensionamento executivo.')
+st.set_page_config(page_title="GeoIrriga | Topografia e Irrigação", page_icon="🌱", layout="wide", initial_sidebar_state="expanded")
+st.markdown('''
+<style>
+:root { --verde:#14553a; --escuro:#10392c; --claro:#f3f8f4; }
+.stApp {background:#f6f9f7;}
+.block-container {padding-top:1.2rem; max-width:1550px;}
+h1,h2,h3 {color:#143e30;}
+[data-testid="stSidebar"] {background:#eaf3ed;}
+[data-testid="stSidebar"] h2 {color:#14553a;}
+div.stButton > button[kind="primary"],div.stDownloadButton > button[kind="primary"] {background:#177348;color:white;border-radius:10px;border:none;font-weight:700;min-height:3rem;}
+div.stButton > button[kind="primary"]:hover,div.stDownloadButton > button[kind="primary"]:hover {background:#0d5534;color:white;}
+.hero {background:linear-gradient(100deg,rgba(9,48,33,.98),rgba(19,83,52,.86)),radial-gradient(ellipse at 75% 100%,#85ac56 0%,#1d5c3c 48%,#103829 100%);color:#fff;border-radius:16px;padding:32px 35px;margin-bottom:20px;}
+.hero h1 {color:white;font-size:2.6rem;margin:0 0 6px;}
+.hero p {color:#e4f0e8;font-size:1.08rem;margin:0;}
+.pill {display:inline-block;border:1px solid #a3cfad;color:#e9f7eb;border-radius:24px;padding:6px 12px;margin:14px 7px 0 0;font-size:.84rem;}
+.section-card {background:white;border:1px solid #e0eae3;border-radius:14px;padding:19px;margin-bottom:14px;box-shadow:0 3px 12px #163a2410;}
+.section-card h3 {margin-top:0;}
+.small-note {color:#5d7366;font-size:.86rem;}
+.footer {background:#103b2c;color:#e8f3e9;border-radius:14px;padding:24px;margin-top:22px;}
+.footer strong {color:white;}
+</style>
+''',unsafe_allow_html=True)
+
+st.markdown('''<div class="hero"><h1>🌱 GeoIrriga</h1><p><b>Do relevo ao pré-projeto de irrigação</b></p><p>Geotecnologias aplicadas ao planejamento da irrigação: satélite, curvas de nível e AutoCAD.</p><span class="pill">📍 KML / KMZ</span><span class="pill">🛰️ Imagem de satélite</span><span class="pill">〰️ Curvas de 1 m</span><span class="pill">📐 Arquivo DXF</span></div>''',unsafe_allow_html=True)
+
+with st.sidebar:
+    st.markdown('## 🌱 GeoIrriga')
+    st.caption('Plataforma de apoio ao planejamento da irrigação')
+    st.markdown('**Navegação**')
+    st.page_link('app.py',label='🏠 Gerar projeto')
+    st.markdown('---')
+    st.markdown('**Desenvolvedor**')
+    st.markdown('**Dr. Márcio Alves Carneiro**')
+    st.caption('Engenheiro agrônomo • Professor EBTT • Pesquisador')
+    st.caption('IFMA — Campus São Raimundo das Mangabeiras')
+    st.markdown('---')
+    st.caption('Uso preliminar. Verifique a precisão dos dados e os direitos das imagens.')
 
 
 def get_polygon(blob, name):
@@ -208,32 +241,58 @@ def run(kml_bytes, filename, api_key, resolution, max_image):
         zf.writestr('RELATORIO.json',json.dumps(report,indent=2,ensure_ascii=False))
     return zip_io.getvalue(),preview.getvalue(),report
 
-upload=st.file_uploader('Arquivo da propriedade (KML ou KMZ)',type=['kml','kmz'])
-col1,col2=st.columns(2)
-with col1:
+st.markdown('## 🗺️ Gerar projeto topográfico')
+st.markdown('Envie o perímetro da propriedade e configure a resolução da imagem incorporada ao arquivo DXF.')
+col_form, col_info = st.columns([1.2,1],gap='large')
+with col_form:
+    st.markdown('### ① Envie o polígono da área')
+    upload=st.file_uploader('Arquivo da propriedade (KML ou KMZ)',type=['kml','kmz'])
+    st.markdown('### ② Configure as opções de saída')
     resolution=st.select_slider('Resolução da imagem incorporada no DXF',options=[180,250,350,450,600,800],value=450)
-with col2:
     max_image=st.select_slider('Resolução da imagem de satélite para prévia',options=[1200,1800,2400,3200,4000],value=2400)
-st.caption('600 ou 800 pixels podem gerar DXFs muito grandes e exigir mais memória no servidor gratuito e no AutoCAD.')
-try:
-    api_key=st.secrets['OPENTOPOGRAPHY_API_KEY']
-except Exception:
-    api_key=None
-if not api_key:
-    api_key=st.text_input('Chave OpenTopography (somente se não estiver configurada no servidor)',type='password')
-
-if st.button('🌍 Gerar projeto DXF',type='primary',disabled=(upload is None or not api_key)):
+    st.caption('600 ou 800 pixels podem gerar DXFs grandes e exigir mais memória do servidor e do AutoCAD.')
     try:
-        with st.spinner('Baixando satélite, calculando curvas e incorporando imagem ao DXF. Aguarde...'):
+        api_key=st.secrets['OPENTOPOGRAPHY_API_KEY']
+    except Exception:
+        api_key=None
+    if not api_key:
+        api_key=st.text_input('Chave OpenTopography (se não configurada no servidor)',type='password')
+    gerar=st.button('🌍 Gerar projeto DXF',type='primary',use_container_width=True,disabled=(upload is None or not api_key))
+with col_info:
+    st.markdown('### 🛰️ O que você receberá')
+    st.markdown('''<div class="section-card"><h3>Base para o pré-projeto</h3><p>✔️ Imagem de satélite incorporada ao DXF<br>✔️ Perímetro georreferenciado<br>✔️ Curvas de nível interpoladas a cada 1 m<br>✔️ Cotas máxima e mínima, desnível e área<br>✔️ Prévia e relatório técnico</p></div>''',unsafe_allow_html=True)
+    st.info('**Importante:** o modelo Copernicus GLO-30 possui resolução nominal de aproximadamente 30 m. As curvas de 1 m são interpoladas e não equivalem a levantamento topográfico de precisão.')
+
+if gerar:
+    try:
+        with st.spinner('Baixando imagem, calculando curvas e gerando DXF. Aguarde...'):
             archive,preview,report=run(upload.getvalue(),upload.name,api_key,resolution,max_image)
         st.success('Projeto gerado com sucesso!')
-        st.image(preview,caption='Prévia do projeto')
-        a,b,c=st.columns(3)
-        a.metric('Área (ha)',f"{report['area_ha']:.3f}")
-        b.metric('Desnível (m)',f"{report['desnivel_m']:.2f}")
-        c.metric('Curvas (segmentos)',str(report['curvas']))
-        st.download_button('⬇️ Baixar DXF + imagem + relatório (ZIP)',data=archive,file_name='PROJETO_IRRIGACAO_DXF.zip',mime='application/zip',type='primary')
+        st.markdown('## 📊 Resultados do processamento')
+        st.image(preview,caption='Imagem de satélite, perímetro e curvas de nível',use_container_width=True)
+        a,b,c,d=st.columns(4)
+        a.metric('Área',f"{report['area_ha']:.3f} ha")
+        b.metric('Perímetro',f"{report['perimetro_m']:.2f} m")
+        c.metric('Desnível',f"{report['desnivel_m']:.2f} m")
+        d.metric('Curvas (segmentos)',str(report['curvas']))
+        st.download_button('⬇️ Baixar DXF + imagem + relatório (ZIP)',data=archive,file_name='GEOIRRIGA_PROJETO_DXF.zip',mime='application/zip',type='primary',use_container_width=True)
     except Exception as exc:
         st.error(f'Não foi possível gerar o projeto: {exc}')
 
-st.caption('Uso preliminar para planejamento. O provedor de imagens pode impor restrições de uso e redistribuição; verifique sua licença antes de publicar ou comercializar os arquivos.')
+st.markdown('---')
+st.markdown('## 🌿 Por que utilizar o GeoIrriga?')
+a,b,c=st.columns(3,gap='medium')
+with a:
+    st.markdown('''<div class="section-card"><h3>🌱 Aplicação prática</h3><p>Permite reconhecer preliminarmente o relevo da propriedade e organizar a delimitação de talhões, setores e possíveis trajetos de tubulações.</p></div>''',unsafe_allow_html=True)
+with b:
+    st.markdown('''<div class="section-card"><h3>⚙️ Geotecnologia acessível</h3><p>Integra arquivos KML/KMZ, imagens de satélite e dados altimétricos para criar uma base inicial de desenho em AutoCAD.</p></div>''',unsafe_allow_html=True)
+with c:
+    st.markdown('''<div class="section-card"><h3>📏 Responsabilidade técnica</h3><p>Os resultados orientam estudos preliminares, mas não substituem topografia de campo, dimensionamento hidráulico e projeto executivo.</p></div>''',unsafe_allow_html=True)
+
+with st.expander('📚 Metodologia, fontes de dados e limitações'):
+    st.markdown('''O perímetro é obtido do KML/KMZ enviado pelo usuário. O relevo é derivado do Copernicus GLO-30, disponibilizado via OpenTopography, e interpolado para representar curvas de 1 metro. A imagem de satélite é consultada em serviço externo e sua disponibilidade, resolução e licenciamento dependem do provedor. As cotas e o desnível devem ser validados com levantamento topográfico antes de decisões executivas.''')
+
+with st.expander('👨‍🏫 Sobre o idealizador e desenvolvedor'):
+    st.markdown('''**Dr. Márcio Alves Carneiro** é engenheiro agrônomo, doutor em Engenharia de Sistemas Agrícolas pela ESALQ/USP, mestre em Engenharia de Sistemas Agrícolas pela UNIVASF e professor EBTT do Instituto Federal do Maranhão (IFMA), Campus São Raimundo das Mangabeiras. Atua em ensino, pesquisa e aplicações de irrigação, recursos hídricos e tecnologias agrícolas.''')
+
+st.markdown('''<div class="footer"><strong>GeoIrriga — Geotecnologias aplicadas ao planejamento da irrigação</strong><br>Idealização e desenvolvimento: Dr. Márcio Alves Carneiro<br><span style="font-size:.85rem">© 2026 • Ferramenta de apoio ao pré-projeto de irrigação</span></div>''',unsafe_allow_html=True)
